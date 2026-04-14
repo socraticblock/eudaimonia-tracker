@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eudaimonia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: eudaimonia
+      POSTGRES_USER: philosopher
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-eudaimonia_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U philosopher -d eudaimonia"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eudaimonia-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: eudaimonia
+      DB_USER: philosopher
+      DB_PASSWORD: ${DB_PASSWORD:-eudaimonia_dev_password}
+      JWT_SECRET: ${JWT_SECRET:-change_this_in_production}
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    name: eudaimonia-postgres-data

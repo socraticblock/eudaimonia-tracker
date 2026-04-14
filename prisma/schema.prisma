@@ -1,0 +1,141 @@
+/**
+ * Eudaimonia — Prisma Schema
+ *
+ * Domain Model (Greek/Stoic naming):
+ * - Philosopher (Φιλόσοφος) — the practitioner, the seeker of wisdom
+ * - Practice (Πρᾶξις) — the habit or discipline (praxis / πρᾶξις)
+ * - CheckIn (Ἔλεγχος) — the daily examination (elegchos / ἔλεγχος)
+ * - Streak (Ἀλυσίδα) — the chain/fire of consistency
+ * - Reflection (Σκέψις) — evening contemplation (skepsis / σκέψις)
+ */
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---- Philosopher (User) ----
+// The Philosopher (Φιλόσοφος) — one who loves wisdom and practices daily.
+
+model Philosopher {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  name      String
+  password  String     // bcrypt hashed
+  school    School?    @relation(fields: [schoolId], references: [id])
+  schoolId  String?
+  practices Practice[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([email])
+  @@index([schoolId])
+  @@map("philosophers")
+}
+
+// ---- School (Optional categorization) ----
+// The School (Σχολή) — Stoa, Academy, Garden, etc.
+
+model School {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  philosophers Philosopher[]
+  createdAt   DateTime     @default(now())
+
+  @@map("schools")
+}
+
+// ---- Practice (Habit) ----
+// The Practice (Πρᾶξις) — a daily discipline (praxis / πρᾶξις)
+
+enum Frequency {
+  DAILY   // Daily practice — the Stoic ideal
+  WEEKLY  // Weekly practice
+  MONTHLY // Monthly practice
+}
+
+model Practice {
+  id            String       @id @default(uuid())
+  philosopherId String
+  philosopher   Philosopher   @relation(fields: [philosopherId], references: [id], onDelete: Cascade)
+  name          String       // e.g., "Morning Meditation"
+  nameGreek     String?      // e.g., "Πρωινὸς διαλογισμός"
+  description   String?
+  descriptionGreek String?
+  frequency     Frequency    @default(DAILY)
+  isActive     Boolean      @default(true)
+  checkIns     CheckIn[]
+  streak       Streak?
+  reflections   Reflection[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([philosopherId])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("practices")
+}
+
+// ---- CheckIn (Daily Log) ----
+// The CheckIn (Ἔλεγχος) — the daily examination (elegchos / ἔλεγχος)
+// "Know thyself" — what did you practice today?
+
+model CheckIn {
+  id          String   @id @default(uuid())
+  practiceId  String
+  practice    Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  completed   Boolean  @default(true)
+  notes       String?  // Optional reflection on the practice
+  checkInDate DateTime @default(now()) @db.Date // The day of the check-in
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([practiceId, checkInDate]) // One check-in per practice per day
+  @@index([practiceId])
+  @@index([checkInDate])
+  @@map("checkins")
+}
+
+// ---- Streak (Consistency) ----
+// The Streak (Ἀλυσίδα) — the chain of consistency, like the Olympic torch
+// The philosopher who practices daily builds an unbreakable chain.
+
+model Streak {
+  id          String    @id @default(uuid())
+  practiceId  String    @unique
+  practice    Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  currentCount Int      @default(0) // Current streak
+  longestCount Int      @default(0) // Longest streak achieved
+  lastCheckIn  DateTime? // Last date of successful check-in
+  startedAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([practiceId])
+  @@map("streaks")
+}
+
+// ---- Reflection (Evening Review) ----
+// The Reflection (Σκέψις) — evening contemplation (skepsis / σκέψις)
+// "Evening review: What did I do well? What could I improve?"
+// From Marcus Aurelius's Meditations.
+
+model Reflection {
+  id          String   @id @default(uuid())
+  practiceId  String?
+  practice    Practice? @relation(fields: [practiceId], references: [id], onDelete: SetNull)
+  philosopherId String
+  content     String   // The reflection text
+  date        DateTime @default(now()) @db.Date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([philosopherId])
+  @@index([practiceId])
+  @@index([date])
+  @@map("reflections")
+}
