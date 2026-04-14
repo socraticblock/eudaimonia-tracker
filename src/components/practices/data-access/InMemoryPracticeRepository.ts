@@ -10,31 +10,30 @@ import { Practice, UpdatePracticeInput } from '../domain/Practice';
 import { PracticeRepository } from '../domain/PracticeRepository';
 
 export class InMemoryPracticeRepository implements PracticeRepository {
-  private practices: Map<string, Practice> = new Map();
+  private practices = new Map<string, Practice>();
 
   async findById(id: string): Promise<Practice | null> {
-    return this.practices.get(id) ?? null;
+    return await Promise.resolve(this.practices.get(id) ?? null);
   }
 
   async findByPhilosopher(philosopherId: string): Promise<Practice[]> {
-    return Array.from(this.practices.values()).filter(
-      (p) => p.philosopherId === philosopherId
+    return await Promise.resolve(
+      Array.from(this.practices.values()).filter(p => p.philosopherId === philosopherId)
     );
   }
 
-  async findActiveByPhilosopher(philosophersId: string): Promise<Practice[]> {
-    return Array.from(this.practices.values()).filter(
-      (p) => p.philosopherId === philosophersId && p.isActive
+  async findActiveByPhilosopher(philosopherId: string): Promise<Practice[]> {
+    return await Promise.resolve(
+      Array.from(this.practices.values()).filter(
+        p => p.philosopherId === philosopherId && p.isActive
+      )
     );
   }
 
-  async findByPhilosopherAndName(
-    philosopherId: string,
-    name: string
-  ): Promise<Practice | null> {
-    return (
+  async findByPhilosopherAndName(philosopherId: string, name: string): Promise<Practice | null> {
+    return await Promise.resolve(
       Array.from(this.practices.values()).find(
-        (p) => p.philosopherId === philosopherId && p.name === name
+        p => p.philosopherId === philosopherId && p.name === name
       ) ?? null
     );
   }
@@ -44,10 +43,7 @@ export class InMemoryPracticeRepository implements PracticeRepository {
     return Promise.resolve(practice);
   }
 
-  async update(
-    id: string,
-    updates: UpdatePracticeInput
-  ): Promise<Practice | null> {
+  async update(id: string, updates: UpdatePracticeInput): Promise<Practice | null> {
     const existing = this.practices.get(id);
     if (!existing) return Promise.resolve(null);
 
@@ -83,7 +79,7 @@ export class InMemoryPracticeRepository implements PracticeRepository {
    * Seed with initial data (for testing)
    */
   seed(practices: Practice[]): void {
-    practices.forEach((p) => this.practices.set(p.id, p));
+    practices.forEach(p => this.practices.set(p.id, p));
   }
 
   /**
