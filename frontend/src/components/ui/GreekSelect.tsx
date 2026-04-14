@@ -4,7 +4,7 @@
  * Styled with Greek theming to match GreekInput.
  */
 
-import { forwardRef, type SelectHTMLAttributes } from 'react';
+import { forwardRef, useId, type SelectHTMLAttributes } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,7 +30,8 @@ export const GreekSelect = forwardRef<HTMLSelectElement, GreekSelectProps>(
     },
     ref
   ) => {
-    const selectId = id || `select-${Math.random().toString(36).slice(2, 9)}`;
+    const generatedId = useId();
+    const selectId = id || generatedId;
 
     return (
       <div className="w-full space-y-1.5">

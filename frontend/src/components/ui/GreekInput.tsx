@@ -5,7 +5,7 @@
  * Supports error states, labels, and helper text.
  */
 
-import { forwardRef, type InputHTMLAttributes } from 'react';
+import { forwardRef, useId, type InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface GreekInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -30,7 +30,8 @@ export const GreekInput = forwardRef<HTMLInputElement, GreekInputProps>(
     },
     ref
   ) => {
-    const inputId = id || `input-${Math.random().toString(36).slice(2, 9)}`;
+    const generatedId = useId();
+    const inputId = id || generatedId;
 
     return (
       <div className="w-full space-y-1.5">
