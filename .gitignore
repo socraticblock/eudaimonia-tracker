@@ -32,6 +32,4 @@ logs/
 *.log
 
 # Docker
-docker-compose*.yml
-Dockerfile*
-.dockerignore
+# (Dockerfile and docker-compose*.yml are tracked for CI)
