@@ -7,12 +7,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import {
-  Practice,
-  CreatePracticeInput,
-  UpdatePracticeInput,
-  Frequency,
-} from './Practice';
+import { Practice, CreatePracticeInput, UpdatePracticeInput, Frequency } from './Practice';
 import { PracticeRepository } from './PracticeRepository';
 import { ValidationError, NotFoundError, ConflictError } from '../../../shared/errors/AppError';
 
@@ -43,9 +38,7 @@ export class PracticeService {
       input.name.trim()
     );
     if (existing) {
-      throw new ConflictError(
-        `Practice "${input.name}" already exists for this philosopher.`
-      );
+      throw new ConflictError(`Practice "${input.name}" already exists for this philosopher.`);
     }
 
     // Validate frequency
@@ -112,10 +105,7 @@ export class PracticeService {
   /**
    * Update a practice
    */
-  async updatePractice(
-    id: string,
-    updates: UpdatePracticeInput
-  ): Promise<Practice> {
+  async updatePractice(id: string, updates: UpdatePracticeInput): Promise<Practice> {
     if (!id || id.trim().length === 0) {
       throw new ValidationError('Practice ID is required.');
     }
@@ -142,9 +132,7 @@ export class PracticeService {
         updates.name.trim()
       );
       if (existing && existing.id !== id) {
-        throw new ConflictError(
-          `Practice "${updates.name}" already exists for this philosopher.`
-        );
+        throw new ConflictError(`Practice "${updates.name}" already exists for this philosopher.`);
       }
     }
 

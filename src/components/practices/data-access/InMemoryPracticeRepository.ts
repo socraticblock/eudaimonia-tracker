@@ -22,9 +22,9 @@ export class InMemoryPracticeRepository implements PracticeRepository {
     );
   }
 
-  async findActiveByPhilosopher(philosopherId: string): Promise<Practice[]> {
+  async findActiveByPhilosopher(philosophersId: string): Promise<Practice[]> {
     return Array.from(this.practices.values()).filter(
-      (p) => p.philosopherId === philosopherId && p.isActive
+      (p) => p.philosopherId === philosophersId && p.isActive
     );
   }
 
@@ -41,7 +41,7 @@ export class InMemoryPracticeRepository implements PracticeRepository {
 
   async save(practice: Practice): Promise<Practice> {
     this.practices.set(practice.id, practice);
-    return practice;
+    return Promise.resolve(practice);
   }
 
   async update(
@@ -49,7 +49,7 @@ export class InMemoryPracticeRepository implements PracticeRepository {
     updates: UpdatePracticeInput
   ): Promise<Practice | null> {
     const existing = this.practices.get(id);
-    if (!existing) return null;
+    if (!existing) return Promise.resolve(null);
 
     const updated: Practice = {
       ...existing,
@@ -58,15 +58,16 @@ export class InMemoryPracticeRepository implements PracticeRepository {
     };
 
     this.practices.set(id, updated);
-    return updated;
+    return Promise.resolve(updated);
   }
 
   async delete(id: string): Promise<void> {
     this.practices.delete(id);
+    return Promise.resolve();
   }
 
   async exists(id: string): Promise<boolean> {
-    return this.practices.has(id);
+    return Promise.resolve(this.practices.has(id));
   }
 
   // ---- Test helpers ----

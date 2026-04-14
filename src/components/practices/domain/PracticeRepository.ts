@@ -6,7 +6,7 @@
  * This allows swapping PostgreSQL for MongoDB, in-memory store, etc.
  */
 
-import { Practice, CreatePracticeInput, UpdatePracticeInput } from './Practice';
+import { Practice, UpdatePracticeInput } from './Practice';
 
 export interface PracticeRepository {
   /**
@@ -27,10 +27,7 @@ export interface PracticeRepository {
   /**
    * Find a practice by philosopher and name (to avoid duplicates)
    */
-  findByPhilosopherAndName(
-    philosopherId: string,
-    name: string
-  ): Promise<Practice | null>;
+  findByPhilosopherAndName(philosopherId: string, name: string): Promise<Practice | null>;
 
   /**
    * Create a new practice

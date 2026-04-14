@@ -1,10 +1,13 @@
 # Dependencies
-node_modules
-npm-debug.log
+node_modules/
+frontend/node_modules/
+*/node_modules/
 
 # Build
-dist
+dist/
+frontend/dist/
 *.tsbuildinfo
+*/tsconfig.tsbuildinfo
 
 # Environment
 .env
@@ -12,8 +15,8 @@ dist
 .env.*.local
 
 # IDE
-.vscode
-.idea
+.vscode/
+.idea/
 *.swp
 
 # OS
@@ -21,14 +24,14 @@ dist
 Thumbs.db
 
 # Tests
-coverage
-*.test.ts
-*.spec.ts
+coverage/
+*/coverage/
 
 # Logs
-logs
+logs/
 *.log
 
-# Temp
-tmp
-temp
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
